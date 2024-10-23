@@ -1,0 +1,49 @@
+h2 {
+  color: black;
+  font-style: italic;
+}
+
+.person {
+  color: grey;
+  padding-top: 3px;
+  font-size: 15px;
+}
+
+.error {
+  color: red;
+  background: lightgrey;
+  font-size: 20px;
+  border-style: solid;
+  border-radius: 5px;
+  padding: 10px;
+  margin-bottom: 10px;
+}
+
+.info {
+  color: green;
+  background: lightgrey;
+  font-size: 20px;
+  border-style: solid;
+  border-radius: 5px;
+  padding: 10px;
+  margin-bottom: 10px;
+}
+
+body {
+  background-color: orange;
+}
+
+button {
+  background-color: black;
+  color: orange;
+  border-radius: 12px;
+  border: none;
+  text-align: center;
+  display: inline-block;
+  margin-left: 4px;
+}
+
+button:hover {
+  background-color: #323232 ;
+  color: rgb(255, 155, 24)
+}
