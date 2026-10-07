@@ -18,12 +18,16 @@ const Statistics = (props) => {
   else {
     return (
       <div>
-        <StatisticLine text="good" value={props.stats.g} />
-        <StatisticLine text="neutral" value={props.stats.n} />
-        <StatisticLine text="bad" value={props.stats.b} />
-        <StatisticLine text="all" value={props.stats.all} />
-        <StatisticLine text="average" value={props.stats.avg} />
-        <StatisticLine text="positive" value={props.stats.pos} />
+        <table>
+          <tbody>
+            <StatisticLine text="good" value={props.stats.g} />
+            <StatisticLine text="neutral" value={props.stats.n} />
+            <StatisticLine text="bad" value={props.stats.b} />
+            <StatisticLine text="all" value={props.stats.all} />
+            <StatisticLine text="average" value={props.stats.avg} />
+            <StatisticLine text="positive" value={props.stats.pos} />
+          </tbody>
+        </table>
       </div>
     )
   }
@@ -40,8 +44,8 @@ const App = () => {
     n: neutral,
     b: bad,
     all: good + neutral + bad,
-    avg: (good - bad) / (good + neutral + bad),
-    pos: (good / (good + neutral + bad)) * 100 + " %"
+    avg: ((good - bad) / (good + neutral + bad)).toFixed(1),
+    pos: ((good / (good + neutral + bad)) * 100).toFixed(1) + " %"
   }
 
   return (
