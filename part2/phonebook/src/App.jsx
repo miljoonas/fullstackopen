@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react'
-import axios from 'axios'
 import personService from './services/persons'
 
 
@@ -87,7 +86,6 @@ const App = () => {
 
   const addNewPerson = (event) => {
     event.preventDefault()
-    const personExists = persons.some(person => person.name === newName) //remove
     const duplicate = persons.find(person => person.name === newName)
     if (duplicate !== undefined) {
       if (duplicate.number === newNumber) {
