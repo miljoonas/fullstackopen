@@ -97,14 +97,23 @@ const App = () => {
             .update(duplicate.id, changedPerson)
             .then(returnedPerson => {
               setPersons(persons.map(person => person.id !== duplicate.id ? person : returnedPerson))
-              setErrorMessage(
-                `Updated ${duplicate.name}`
-              )
+              setMessageType('info')
+              setErrorMessage(`Updated ${duplicate.name}`)
               setTimeout(() => {
                 setErrorMessage(null)
+                setMessageType(null)
               }, 5000)
               setNewName('')
               setNumber('')
+            })
+            .catch(error => {
+              setMessageType('error')
+              setErrorMessage(error.response.data.error)
+
+              setTimeout(() => {
+                setErrorMessage(null)
+                setMessageType(null)
+              }, 5000)
             })
         }
       }
@@ -118,14 +127,23 @@ const App = () => {
         .create(personsObject)
         .then(returnedPerson => {
           setPersons(persons.concat(returnedPerson))
-          setErrorMessage(
-            `Added ${newName}`
-          )
+          setMessageType('info')
+          setErrorMessage(`Added ${newName}`)
           setTimeout(() => {
             setErrorMessage(null)
+            setMessageType(null)
           }, 5000)
           setNewName('')
           setNumber('')
+        })
+        .catch(error => {
+          setMessageType('error')
+          setErrorMessage(error.response.data.error)
+
+          setTimeout(() => {
+            setErrorMessage(null)
+            setMessageType(null)
+          }, 5000)
         })
     }
   }
