@@ -1,6 +1,8 @@
-test*
+practice
 node_modules
 requests
 .vscode
 .env
 dist
+*.rest
+part4/phonebook/
