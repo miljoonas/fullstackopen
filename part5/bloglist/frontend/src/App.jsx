@@ -1,16 +1,14 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
+import { Link, Navigate, Route, Routes, useMatch, useNavigate } from 'react-router-dom'
 import { useMessage } from './hooks/useMessage'
-import axios from 'axios'
 import blogService from './services/blogs'
+import loginService from './services/login'
 import Blog from './components/Blog'
+import BlogList from './components/BlogList'
 import Notification from './components/Notification'
 import LoginForm from './components/LoginForm'
-import Togglable from './components/Togglable'
 import BlogForm from './components/BlogForm'
-
-
-const baseUrl = '/api/blogs'
-const loginUrl = '/api/login'
+import Footer from './components/Footer'
 
 const App = () => {
   const [blogs, setBlogs] = useState([])
@@ -23,13 +21,16 @@ const App = () => {
       return null
     }
   })
-  const blogFormRef = useRef()
+  const navigate = useNavigate()
+  const match = useMatch('/blogs/:id')
+  const blog = match
+    ? blogs.find(b => b.id === match.params.id)
+    : null
 
   useEffect(() => {
-    axios
-      .get(baseUrl)
-      .then(response => {
-        setBlogs(response.data)
+    blogService.getAll()
+      .then(initialBlogs => {
+        setBlogs(initialBlogs)
       })
       .catch(error => {
         console.error('Failed to fetch blogs:', error)
@@ -42,15 +43,17 @@ const App = () => {
 
   const handleLogin = async ({ username, password }) => {
     try {
-      const response = await axios.post(loginUrl, {
+      const loggedInUser = await loginService.login({
         username,
-        password,
+        password
       })
+
       window.localStorage.setItem(
-        'loggedBlogappUser', JSON.stringify(response.data)
+        'loggedBlogappUser', JSON.stringify(loggedInUser)
       )
-      blogService.setToken(response.data.token)
-      setUser(response.data)
+      blogService.setToken(loggedInUser.token)
+      setUser(loggedInUser)
+      navigate('/')
     } catch (error) {
       showMessage('error', 'Wrong username or password')
       console.log(error)
@@ -61,38 +64,40 @@ const App = () => {
     window.localStorage.removeItem('loggedBlogappUser')
     blogService.setToken(null)
     setUser(null)
+    navigate('/')
   }
 
 
   const createBlog = (blogObject) => {
-    blogFormRef.current.toggleVisibility()
-    blogService
+    return blogService
       .create(blogObject)
       .then(returnedBlog => {
         setBlogs(prevBlogs => prevBlogs.concat(returnedBlog))
-        showMessage('info', `a new blog ${returnedBlog.title} by ${returnedBlog.author} added`
-        )
+        showMessage('info', `a new blog ${returnedBlog.title} by ${returnedBlog.author} added`)
       })
       .catch(error => {
         showMessage('error', error.response?.data?.error || 'Failed to create blog')
+        throw error
       })
   }
 
-  const likeBlog = async (blog) => {
+  const likeBlog = async (blogToLike) => {
     const updatedBlog = {
-      ...blog,
-      likes: blog.likes + 1
+      ...blogToLike,
+      likes: blogToLike.likes + 1
     }
 
     try {
       const returnedBlog = await blogService.update(
-        blog.id,
+        blogToLike.id,
         updatedBlog
       )
 
       setBlogs(prevBlogs =>
         prevBlogs.map(b =>
-          b.id === returnedBlog.id ? returnedBlog : b
+          b.id === returnedBlog.id
+            ? { ...returnedBlog, user: returnedBlog.user ?? blogToLike.user }
+            : b
         )
       )
     } catch (error) {
@@ -103,64 +108,59 @@ const App = () => {
     }
   }
 
-  const blogList = () => (
-    <div>
-      <h2>Blogs</h2>
-      {blogs
-        .slice()
-        .sort((a,b) => b.likes - a.likes)
-        .map(blog => (
-          <Blog key={blog.id} blog={blog} likeBlog={likeBlog} deleteBlog={deleteBlog} user={user} />
-        ))}
-    </div>
-  )
-
-
-  const deleteBlog = id => {
-    console.log('delete gets called')
-    const blog = blogs.find(blog => blog.id === id)
-    console.log('here?', blog)
-    if (!blog) return
-    if (window.confirm(`Delete "${blog.title}"?`)) {
-      blogService
-        .remove(id)
-        .then(() => {
-
-          setBlogs(currentBlogs =>
-            currentBlogs.filter(blog => blog.id !== id)
-          )
-          showMessage('info', `Deleted "${blog.title}"`)
-        })
-        .catch(() => {
-          showMessage('error', `Failed to delete "${blog.title}".`)
-        })
+  const deleteBlog = async (id) => {
+    const blogToDelete = blogs.find(b => b.id === id)
+    if (!blogToDelete) return
+    try {
+      await blogService.remove(id)
+      setBlogs(currentBlogs => currentBlogs.filter(b => b.id !== id))
+      showMessage('info', `Deleted ${blogToDelete.title}`)
+    } catch (error) {
+      showMessage('error', `Failed to deleted ${blogToDelete.title}`)
+      throw error
     }
+  }
+
+  const padding = {
+    padding: 5
   }
 
   return (
     <div>
-      <h1>Blog app</h1>
-
-      <Notification message={message} type={messageType}/>
-      {user === null ? (
-        <div>
-          <Togglable buttonLabel='login'>
-            <LoginForm login={handleLogin}/>
-          </Togglable>
-        </div>
-      ) : (
-        <div>
-          <p>
-            {user.name} logged in
+      <Footer/>
+      <div>
+        <Link style={padding} to="/">blogs</Link>
+        {user ? (
+          <>
+            <Link style={padding} to="/create">new blog</Link>
             <button onClick={handleLogout}>logout</button>
-          </p>
-          <Togglable buttonLabel='new blog' ref={blogFormRef}>
-            <BlogForm createBlog={createBlog} />
-          </Togglable>
-          {blogList()}
-        </div>
-      )}
+
+          </>
+        ) : (
+          <Link style={padding} to="/login">login</Link>
+        )}
+      </div>
+      {user && `Logged in as ${user.name}`}
+      <Notification message={message} type={messageType} />
+      <Routes>
+        <Route path="/blogs/:id" element={
+          <Blog
+            blog={blog}
+            user={user}
+            likeBlog={likeBlog}
+            deleteBlog={deleteBlog}
+          />
+        } />
+        <Route path="/create" element={
+          user ? <BlogForm createBlog={createBlog} /> : <Navigate replace to="/login" />
+        } />
+        <Route path="/login" element={<LoginForm login={handleLogin} />} />
+        <Route path="/" element={<BlogList blogs={blogs} />} />
+      </Routes>
+
     </div>
+
+
   )
 }
 

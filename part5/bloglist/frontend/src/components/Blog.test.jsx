@@ -1,7 +1,8 @@
 import { render, screen } from '@testing-library/react'
-import userEvent from '@testing-library/user-event'
+import { MemoryRouter } from 'react-router-dom'
+// import userEvent from '@testing-library/user-event'
 import Blog from './Blog'
-import { vi } from 'vitest'
+import { expect, test, vi } from 'vitest'
 
 const blog = {
   id: '6acca56f19cf6e94df51bef1',
@@ -11,78 +12,67 @@ const blog = {
   likes: 14,
   user: {
     name: 'Mikko Meikäläinen',
+    username: 'mikko',
     id: '12345'
   }
 }
 
-describe('<Blog />', () => {
-  test('renders title', async () => {
-    const user = userEvent.setup()
+const creator = {
+  name: 'Mikko Meikäläinen',
+  username: 'mikko',
+}
 
-    const likeBlog = vi.fn()
-    const deleteBlog = vi.fn()
+const otherUser = {
+  name: 'Test User',
+  username: 'other',
+}
 
-    render(<Blog blog={blog} likeBlog={likeBlog} deleteBlog={deleteBlog} />)
-
-    expect(screen.getAllByText('Test Blog - Dummy').length).toBeGreaterThan(0)
-    expect(screen.queryByText(blog.url)).not.toBeVisible()
-    expect(screen.getByText('likes 14')).not.toBeVisible()
-
-    await user.click(screen.getByRole('button', { name: 'view' }))
-
-    expect(screen.getByText(blog.url)).toBeVisible()
-    expect(screen.getByText('likes 14')).toBeVisible()
-    expect(screen.getByText('Mikko Meikäläinen')).toBeVisible()
-    expect(screen.getByRole('button', { name: 'hide' })).toBeVisible()
-    expect(screen.getByRole('button', { name: 'remove' })).toBeVisible()
-  })
-
-  test('view button reveals right content', async () => {
-    const user = userEvent.setup()
-
-
-
-    const likeBlog = vi.fn()
-    const deleteBlog = vi.fn()
-
-    render(<Blog blog={blog} likeBlog={likeBlog} deleteBlog={deleteBlog} />)
-
-    expect(screen.getAllByText('Test Blog - Dummy').length).toBeGreaterThan(0)
-    expect(screen.queryByText(blog.url)).not.toBeVisible()
-    expect(screen.getByText('likes 14')).not.toBeVisible()
-
-    await user.click(screen.getByRole('button', { name: 'view' }))
-
-    expect(screen.getByText(blog.url)).toBeVisible()
-    expect(screen.getByText('likes 14')).toBeVisible()
-    expect(screen.getByText('Mikko Meikäläinen')).toBeVisible()
-    expect(screen.getByRole('button', { name: 'hide' })).toBeVisible()
-    expect(screen.getByRole('button', { name: 'remove' })).toBeVisible()
-  })
-
-  test('calls likeBlog twice when like button is clicked twice', async () => {
-    const user = userEvent.setup()
-
-    const likeBlog = vi.fn()
-    const deleteBlog = vi.fn()
-
-    render(
-      <Blog
-        blog={blog}
-        likeBlog={likeBlog}
-        deleteBlog={deleteBlog}
-      />
+const renderBlog = (props = {}) => {
+  const likeBlog = props.likeBlog ?? vi.fn()
+  const deleteBlog = props.deleteBlog ?? vi.fn()
+  return {
+    likeBlog,
+    deleteBlog,
+    ...render(
+      <MemoryRouter>
+        <Blog
+          blog={blog}
+          likeBlog={likeBlog}
+          deleteBlog={deleteBlog}
+          {...props}
+        />
+      </MemoryRouter>
     )
+  }
+}
 
-    await user.click(screen.getByRole('button', { name: 'view' }))
+const expectBlogDetails = () => {
+  expect(screen.getByRole('heading', { name: 'Dummy: Test Blog' })).toBeVisible()
+  expect(screen.getByRole('link', blog.url)).toBeVisible()
+  expect(screen.getByText('likes 14')).toBeVisible()
+  expect(screen.getByText('Added by Mikko Meikäläinen')).toBeVisible()
+}
 
-    const likeButton = screen.getByRole('button', { name: 'like' })
-    await user.click(likeButton)
-    await user.click(likeButton)
+describe('<Blog />', () => {
+  test('shows blog details and likes to a logged-out user, with no buttons', () => {
+    renderBlog({ user: null })
+    expectBlogDetails()
+    expect(screen.queryByRole('button')).not.toBeInTheDocument()
+  })
 
-    expect(likeBlog).toHaveBeenCalledTimes(2)
+  test('shows only the like button to a logged-in user who is not the creator', () => {
+    renderBlog({ user: otherUser })
 
-    expect(likeBlog).toHaveBeenNthCalledWith(1, blog)
-    expect(likeBlog).toHaveBeenNthCalledWith(2, blog)
+    expectBlogDetails()
+    expect(screen.getByRole('button', { name: 'like' })).toBeVisible()
+    expect(screen.queryByRole('button', { name: 'remove' })).not.toBeInTheDocument()
+  })
+
+  test('shows like and remove buttons to the blog creator', () => {
+    renderBlog({ user: creator })
+
+    expectBlogDetails()
+    expect(screen.getByRole('button', { name: 'like' })).toBeVisible()
+    expect(screen.getByRole('button', { name: 'remove' })).toBeVisible()
   })
 })

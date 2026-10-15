@@ -1,33 +1,52 @@
-import Togglable from './Togglable'
+import { useNavigate } from 'react-router-dom'
 
 const Blog = ({ blog, likeBlog, deleteBlog, user }) => {
-  const blogStyle = {
-    paddingTop: 10,
-    paddingLeft: 2,
-    border: 'solid',
-    borderWidth: 1,
-    marginBottom: 5
+  const navigate = useNavigate()
+
+  if (!blog) {
+    return null
   }
 
-  const canRemove = blog.user?.username === user?.username
+  const canLike = !!user
+  const canRemove = !!user && blog.user?.username === user.username
+
+  const handleDelete = async () => {
+    if (!window.confirm(`Delete "${blog.title}"?`)) {
+      return
+    }
+
+    try {
+      await deleteBlog(blog.id)
+      navigate('/')
+    } catch {
+      // error handled
+    }
+  }
 
   return (
-    <div className="blog" style={blogStyle}>
-      <Togglable variant="titled" title={`${blog.title} - ${blog.author}`} buttonLabel="view">
-        <article>
-          <a href={blog.url} target="_blank" rel="noopener noreferrer">
-            {blog.url}
-          </a>
-          <div>
-            likes {blog.likes}{' '}
+    <div className='blog'>
+      <h2>
+        {blog.author}: {blog.title}
+      </h2>
+      <article>
+        <a href={blog.url} target="_blank" rel="noopener noreferrer">
+          {blog.url}
+        </a>
+        <div>
+          likes {blog.likes}
+          {canLike && (
             <button onClick={() => likeBlog(blog)}>
               like
             </button>
-          </div>
-          <div>{blog.user?.name}</div>
-        </article>
-        {canRemove && (<button onClick={() => deleteBlog(blog.id)}> remove </button>)}
-      </Togglable>
+          )}
+        </div>
+        <div>Added by {blog.user?.name}</div>
+      </article>
+      {canRemove && (
+        <button onClick={handleDelete}>
+          remove
+        </button>
+      )}
     </div>
   )
 }

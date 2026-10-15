@@ -6,10 +6,9 @@ const Footer = () => {
 
   return (
     <div style={footerStyle}>
-      <br />
-      <p>
+      <h1>
         Blog app
-      </p>
+      </h1>
     </div>
   )
 }

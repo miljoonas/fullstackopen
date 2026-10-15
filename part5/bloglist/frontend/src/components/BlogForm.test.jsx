@@ -1,12 +1,18 @@
 import { render, screen } from '@testing-library/react'
 import BlogForm from './BlogForm'
 import userEvent from '@testing-library/user-event'
+import { MemoryRouter } from 'react-router-dom'
+import { vi } from 'vitest'
 
 test('<BlogForm /> updates parent state and calls createBlog', async () => {
   const user = userEvent.setup()
   const createBlog = vi.fn()
 
-  render(<BlogForm createBlog={createBlog} />)
+  render(
+    <MemoryRouter>
+      <BlogForm createBlog={createBlog} />
+    </MemoryRouter>
+  )
 
   const titleInput = screen.getByRole('textbox', { name: /title/i })
   const authorInput = screen.getByRole('textbox', { name: /author/i })
