@@ -16,7 +16,7 @@ beforeEach(async () => {
   await rootUser.save()
 })
 
-describe('Users API', () => {
+describe('Users API', { concurrency: false }, () => {
   describe('POST /api/users', () => {
     test('creation succeeds with a fresh username', async () => {
       const usersAtStart = await helper.usersInDb()

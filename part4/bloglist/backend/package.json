@@ -9,8 +9,9 @@
   "scripts": {
     "start": "NODE_ENV=production node index.js",
     "dev": "NODE_ENV=development node --watch index.js",
-    "test": "NODE_ENV=test node --test",
-    "lint": "eslint ."
+    "test": "NODE_ENV=test node --test --test-concurrency=1",
+    "lint": "eslint .",
+    "start:test": "NODE_ENV=test node --watch index.js"
   },
   "dependencies": {
     "bcrypt": "^6.0.0",

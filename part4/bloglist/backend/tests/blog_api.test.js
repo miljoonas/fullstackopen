@@ -20,7 +20,7 @@ beforeEach(async () => {
   await rootUser.save()
 })
 
-describe('Blogs API', () => {
+describe('Blogs API', { concurrency: false }, () => {
   describe('GET /api/blogs', () => {
     test('returns all blogs', async () => {
       const response = await api.get('/api/blogs')
