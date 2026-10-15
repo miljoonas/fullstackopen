@@ -1,28 +1,30 @@
-import { Link } from 'react-router-dom'
-
-const blogStyle = {
-  paddingTop: 10,
-  paddingLeft: 2,
-  border: 'solid',
-  borderWidth: 1,
-  marginBottom: 5
-}
+import { Link as RouterLink } from 'react-router-dom'
+import { Link, Paper, Stack, Typography } from '@mui/material'
 
 const BlogList = ({ blogs }) => {
   return (
     <div>
-      <h2>Blogs</h2>
-      {blogs
-        .slice()
-        .sort((a, b) => b.likes - a.likes)
-        .map(blog => (
+      <Typography variant='h5' component='h2' sx={{ mt: 2, mb: 2 }}>
+        Blogs
+      </Typography>
+      <Stack spacing={1}>
 
-          <div key={blog.id} className='blog' style={blogStyle}>
-            <Link to={`/blogs/${blog.id}`}>
-              {blog.title} - {blog.author}
-            </Link>
-          </div>
-        ))}
+        {blogs
+          .slice()
+          .sort((a, b) => b.likes - a.likes)
+          .map(blog => (
+
+            <Paper key={blog.id} className='blog' variant='outlined' sx={{ p: 1.5 }}>
+              <Link
+                component={RouterLink}
+                to={`/blogs/${blog.id}`}
+                underline='hover'
+              >
+                {blog.title} - {blog.author}
+              </Link>
+            </Paper>
+          ))}
+      </Stack>
     </div >
   )
 }

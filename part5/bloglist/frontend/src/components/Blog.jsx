@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom'
+import { Button, Card, CardActions, CardContent, Link, Stack, Typography } from '@mui/material'
 
 const Blog = ({ blog, likeBlog, deleteBlog, user }) => {
   const navigate = useNavigate()
@@ -24,30 +25,36 @@ const Blog = ({ blog, likeBlog, deleteBlog, user }) => {
   }
 
   return (
-    <div className='blog'>
-      <h2>
-        {blog.author}: {blog.title}
-      </h2>
-      <article>
-        <a href={blog.url} target="_blank" rel="noopener noreferrer">
-          {blog.url}
-        </a>
-        <div>
-          likes {blog.likes}
-          {canLike && (
-            <button onClick={() => likeBlog(blog)}>
-              like
-            </button>
-          )}
-        </div>
-        <div>Added by {blog.user?.name}</div>
-      </article>
+    <Card className='blog'>
+      <CardContent>
+        <Typography>
+          {blog.author}: {blog.title}
+        </Typography>
+        <article>
+          <Link href={blog.url} target="_blank" rel="noopener noreferrer">
+            {blog.url}
+          </Link>
+          <Stack direction='row' spacing={1} alignItems='center' sx={{ mt: 2 }}>
+            <Typography>likes {blog.likes}</Typography>
+            {canLike && (
+              <Button size='small' variant='outlined' onClick={() => likeBlog(blog)}>
+                like
+              </Button>
+            )}
+          </Stack>
+          <Typography color='text.secondary' sx={{ mt: 2 }} >
+            Added by {blog.user?.name}
+          </Typography>
+        </article>
+      </CardContent>
       {canRemove && (
-        <button onClick={handleDelete}>
-          remove
-        </button>
+        <CardActions>
+          <Button size='small' color='error' variant='outlined' onClick={handleDelete}>
+            remove
+          </Button>
+        </CardActions>
       )}
-    </div>
+    </Card >
   )
 }
 

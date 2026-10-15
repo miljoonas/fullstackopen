@@ -9,6 +9,11 @@ import Notification from './components/Notification'
 import LoginForm from './components/LoginForm'
 import BlogForm from './components/BlogForm'
 import Footer from './components/Footer'
+import { Container, AppBar, Box, Button, Toolbar, Typography } from '@mui/material'
+
+const navButtonStyle = {
+  '&:hover': { bgcolor: 'rgba(255,255,255,0.3)' }
+}
 
 const App = () => {
   const [blogs, setBlogs] = useState([])
@@ -121,26 +126,24 @@ const App = () => {
     }
   }
 
-  const padding = {
-    padding: 5
-  }
-
   return (
-    <div>
-      <Footer/>
-      <div>
-        <Link style={padding} to="/">blogs</Link>
-        {user ? (
-          <>
-            <Link style={padding} to="/create">new blog</Link>
-            <button onClick={handleLogout}>logout</button>
+    <Container>
+      <AppBar position="static">
 
-          </>
-        ) : (
-          <Link style={padding} to="/login">login</Link>
-        )}
-      </div>
-      {user && `Logged in as ${user.name}`}
+        <Toolbar>
+          <Typography variant='h6' sx={{ flexGrow: 1 }}>Blog app</Typography>
+          <Button color="inherit" component={Link} to="/" sx={navButtonStyle}>blogs</Button>
+          {user ? (
+            <>
+              <Button color="inherit" component={Link} to="/create" sx={navButtonStyle}>new blog</Button>
+              <Box sx={{ mx: 2 }}>Logged in as {user.name}</Box>
+              <Button color="inherit" onClick={handleLogout} sx={navButtonStyle}>logout</Button>
+            </>
+          ) : (
+            <Button color="inherit" component={Link} to="/login" sx={navButtonStyle}>login</Button>
+          )}
+        </Toolbar>
+      </AppBar>
       <Notification message={message} type={messageType} />
       <Routes>
         <Route path="/blogs/:id" element={
@@ -157,8 +160,8 @@ const App = () => {
         <Route path="/login" element={<LoginForm login={handleLogin} />} />
         <Route path="/" element={<BlogList blogs={blogs} />} />
       </Routes>
-
-    </div>
+      <Footer />
+    </Container >
 
 
   )

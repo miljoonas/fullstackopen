@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { Box, Button, TextField, Typography } from '@mui/material'
 
 const BlogForm = ({ createBlog }) => {
   const [blogTitle, setTitle] = useState('')
@@ -27,45 +28,39 @@ const BlogForm = ({ createBlog }) => {
   }
 
   return (
-    <div>
-      <h2>Create new</h2>
-      <form onSubmit={addBlog}>
-        <div>
-          <label>
-            title:
-            <input
-              type="text"
-              value={blogTitle}
-              onChange={({ target }) => setTitle(target.value)}
-            />
-          </label>
-        </div>
+    <Box>
+      <Typography variant='h5' component='h2' gutterBottom>
+        Create new
+      </Typography>
+      <Box
+        component='form'
+        onSubmit={addBlog}
+        sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}
+      >
+        <TextField
+          id='title'
+          label='title'
+          value={blogTitle}
+          onChange={({ target }) => setTitle(target.value)}
+        />
 
-        <div>
-          <label>
-            author:
-            <input
-              type="text"
-              value={blogAuthor}
-              onChange={({ target }) => setAuthor(target.value)}
-            />
-          </label>
-        </div>
+        <TextField
+          id='author'
+          label='author'
+          value={blogAuthor}
+          onChange={({ target }) => setAuthor(target.value)}
+        />
 
-        <div>
-          <label>
-            url:
-            <input
-              type="text"
-              value={blogUrl}
-              onChange={({ target }) => setUrl(target.value)}
-            />
-          </label>
-        </div>
+        <TextField
+          id='url'
+          label='url'
+          value={blogUrl}
+          onChange={({ target }) => setUrl(target.value)}
+        />
 
-        <button type="submit">create</button>
-      </form>
-    </div>
+        <Button type="submit" variant='contained'>create</Button>
+      </Box>
+    </Box>
   )
 }
 

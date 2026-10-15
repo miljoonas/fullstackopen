@@ -1,15 +1,12 @@
-const Footer = () => {
-  const footerStyle = {
-    color: 'green',
-    fontStyle: 'italic'
-  }
+import { Box, Typography } from '@mui/material'
 
+const Footer = () => {
   return (
-    <div style={footerStyle}>
-      <h1>
+    <Box sx={{ mt: 4, py: 2, color: 'text.secondary' }}>
+      <Typography variant="body2">
         Blog app
-      </h1>
-    </div>
+      </Typography>
+    </Box>
   )
 }
 
